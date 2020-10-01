@@ -15,7 +15,12 @@ async function test(name: string) {
 async function assertTest(name: string) {
   await denoCommand(
     `./test/${name}/parser.pd`,
-    { directory: undefined, force: true, verbose: true },
+    {
+      scannerOutputFileName: undefined,
+      parserOutputFileName: undefined,
+      force: true,
+      verbose: true,
+    },
   );
 
   const result = await exec(

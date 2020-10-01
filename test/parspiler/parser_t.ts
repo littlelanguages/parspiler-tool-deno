@@ -1,4 +1,4 @@
-import { mkParser } from "./parser.ts";
+import { mkParser } from "./parser-parser.ts";
 
 Deno.test("test - parser - id", () => {
 });

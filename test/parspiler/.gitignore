@@ -1,2 +1,2 @@
-parser.ts
-scanner.ts
+parser-parser.ts
+parser-scanner.ts

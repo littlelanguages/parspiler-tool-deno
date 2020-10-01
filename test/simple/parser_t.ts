@@ -1,7 +1,7 @@
 import * as Assert from "../../testing/asserts.ts";
 
-import { mkParser, Visitor } from "./parser.ts";
-import { Token, mkScanner } from "./scanner.ts";
+import { mkParser, Visitor } from "./parser-parser.ts";
+import { Token, mkScanner } from "./parser-scanner.ts";
 
 const visitor: Visitor<
   string,

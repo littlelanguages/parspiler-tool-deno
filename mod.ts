@@ -12,7 +12,8 @@ import {
 import { writeScanner } from "https://raw.githubusercontent.com/littlelanguages/scanpiler-tool-deno/0.2.1/mod.ts";
 
 export type CommandOptions = {
-  directory: string | undefined;
+  scannerOutputFileName: string | undefined;
+  parserOutputFileName: string | undefined;
   force: boolean;
   verbose: boolean;
 };
@@ -21,15 +22,40 @@ export const denoCommand = async (
   fileName: string,
   options: CommandOptions,
 ): Promise<void> => {
-  const fs = new FS(fileName, options);
+  const parsedFileName = Path.parse(fileName);
+
+  const scannerOutputFileName = options.scannerOutputFileName ||
+    Path.format(
+      Object.assign(
+        {},
+        parsedFileName,
+        {
+          base: `${parsedFileName.name}-scanner.ts`,
+          name: `${parsedFileName.name}-scanner`,
+          ext: ".ts",
+        },
+      ),
+    );
+  const parserOutputFileName = options.parserOutputFileName ||
+    Path.format(
+      Object.assign(
+        {},
+        parsedFileName,
+        {
+          base: `${parsedFileName.name}-parser.ts`,
+          name: `${parsedFileName.name}-parser`,
+          ext: ".ts",
+        },
+      ),
+    );
 
   if (
     options.force ||
-    fs.sourceFileDateTime() > fs.targetFileDateTime(["scanner", ".ts"]) ||
-    fs.sourceFileDateTime() > fs.targetFileDateTime(["parser", ".ts"])
+    fileDateTime(fileName) > fileDateTime(scannerOutputFileName) ||
+    fileDateTime(fileName) > fileDateTime(parserOutputFileName)
   ) {
-    const src = await Deno.readTextFile(fs.sourceFileName());
-    const parseResult = await translate(fs.sourceFileName(), src);
+    const src = await Deno.readTextFile(fileName);
+    const parseResult = await translate(fileName, src);
 
     return parseResult.either((es) =>
       PP.render(
@@ -39,16 +65,20 @@ export const denoCommand = async (
         Deno.stdout,
       ), (definition) => {
       if (options.verbose) {
-        console.log(`Writing scanner.ts`);
+        console.log(`Writing ${scannerOutputFileName}`);
       }
       return writeScanner(
-        fs.targetFileName(["scanner", ".ts"]),
+        scannerOutputFileName,
         definition.scanner,
       ).then((_) => {
         if (options.verbose) {
-          console.log(`Writing parser.ts`);
+          console.log(`Writing ${parserOutputFileName}`);
         }
-        return writeParser(fs.targetFileName(["parser", ".ts"]), definition);
+        return writeParser(
+          parserOutputFileName,
+          canonicalRelativeTo(parserOutputFileName, scannerOutputFileName),
+          definition,
+        );
       });
     });
   } else {
@@ -58,11 +88,18 @@ export const denoCommand = async (
 
 const writeParser = async (
   fileName: string,
+  scannerRelativeName: string,
   definition: Definition,
 ): Promise<void> => {
   const parserDoc = PP.vcat([
     'import { Either, left, right } from "https://raw.githubusercontent.com/littlelanguages/deno-lib-data-either/0.1.0/mod.ts";',
-    'import { mkScanner, Scanner, Token, TToken } from "./scanner.ts";',
+    PP.hcat(
+      [
+        'import { mkScanner, Scanner, Token, TToken } from "',
+        scannerRelativeName,
+        '";',
+      ],
+    ),
     PP.blank,
     writeVisitor(definition),
     PP.blank,
@@ -536,48 +573,39 @@ const writeSyntaxError = (): PP.Doc =>
 const parseFunctioName = (name: string): string =>
   `${name.slice(0, 1).toLowerCase()}${name.slice(1)}`;
 
-class FS {
-  sourceFile: Path.ParsedPath;
-  sourceFileStat: Deno.FileInfo | undefined;
-  options: CommandOptions;
+const fileDateTime = (name: string): number => {
+  try {
+    return Deno.lstatSync(name)?.mtime?.getTime() || 0;
+  } catch (_) {
+    return 0;
+  }
+};
 
-  constructor(srcFileName: string, options: CommandOptions) {
-    this.sourceFile = Path.parse(srcFileName);
-    if (this.sourceFile.ext === undefined) {
-      this.sourceFile.ext = ".ll";
+const canonicalRelativeTo = (src: string, target: string): string => {
+  const srcParse = Path.parse(src);
+  const targetParse = Path.parse(target);
+
+  const srcParsePath = srcParse.dir + "/";
+  const targetParsePath = targetParse.dir + "/";
+
+  const len = Math.max(srcParsePath.length, targetParsePath.length);
+  let lp = 0;
+  while (lp < len && srcParsePath[lp] === targetParsePath[lp]) {
+    lp += 1;
+  }
+  while (lp > 0 && srcParsePath[lp] !== "/") {
+    lp -= 1;
+  }
+  const suffix = targetParsePath.substr(lp + 1);
+
+  let result = "";
+  lp += 1;
+  while (lp < srcParsePath.length) {
+    if (srcParsePath[lp] === "/") {
+      result = result + "../";
     }
-    this.options = options;
+    lp += 1;
   }
 
-  sourceFileName(): string {
-    return Path.format(this.sourceFile);
-  }
-
-  sourceFileDateTime(): number {
-    if (this.sourceFileStat === undefined) {
-      this.sourceFileStat = Deno.lstatSync(this.sourceFileName());
-    }
-
-    return this.sourceFileStat?.mtime?.getTime() || 0;
-  }
-
-  targetFileDateTime(name: [string, string]): number {
-    try {
-      return Deno.lstatSync(this.targetFileName(name))?.mtime?.getTime() || 0;
-    } catch (_) {
-      return 0;
-    }
-  }
-
-  targetFileName(name: [string, string]): string {
-    const path = Object.assign({}, this.sourceFile);
-
-    path.name = name[0];
-    path.ext = name[1];
-
-    path.dir = this.options.directory || path.dir;
-    path.base = path.name + path.ext;
-
-    return Path.format(path);
-  }
-}
+  return "./" + result + suffix + targetParse.base;
+};
