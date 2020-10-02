@@ -10,6 +10,7 @@ import {
   translate,
 } from "https://raw.githubusercontent.com/littlelanguages/parspiler/0.0.2/mod.ts";
 import { writeScanner } from "https://raw.githubusercontent.com/littlelanguages/scanpiler-tool-deno/0.2.1/mod.ts";
+import { _format } from "./testing/asserts.ts";
 
 export type CommandOptions = {
   scannerOutputFileName: string | undefined;
@@ -25,29 +26,9 @@ export const denoCommand = async (
   const parsedFileName = Path.parse(fileName);
 
   const scannerOutputFileName = options.scannerOutputFileName ||
-    Path.format(
-      Object.assign(
-        {},
-        parsedFileName,
-        {
-          base: `${parsedFileName.name}-scanner.ts`,
-          name: `${parsedFileName.name}-scanner`,
-          ext: ".ts",
-        },
-      ),
-    );
+    constructOutputFileName(parsedFileName, "scanner");
   const parserOutputFileName = options.parserOutputFileName ||
-    Path.format(
-      Object.assign(
-        {},
-        parsedFileName,
-        {
-          base: `${parsedFileName.name}-parser.ts`,
-          name: `${parsedFileName.name}-parser`,
-          ext: ".ts",
-        },
-      ),
-    );
+    constructOutputFileName(parsedFileName, "parser");
 
   if (
     options.force ||
@@ -580,6 +561,22 @@ const fileDateTime = (name: string): number => {
     return 0;
   }
 };
+
+const constructOutputFileName = (
+  parsedFileName: Path.ParsedPath,
+  name: string,
+): string =>
+  Path.format(
+    Object.assign(
+      {},
+      parsedFileName,
+      {
+        base: `${parsedFileName.name}-${name}.ts`,
+        name: `${parsedFileName.name}-${name}`,
+        ext: ".ts",
+      },
+    ),
+  );
 
 const canonicalRelativeTo = (src: string, target: string): string => {
   const srcParse = Path.parse(src);
