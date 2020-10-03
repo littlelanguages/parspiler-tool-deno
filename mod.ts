@@ -10,7 +10,6 @@ import {
   translate,
 } from "https://raw.githubusercontent.com/littlelanguages/parspiler/0.0.2/mod.ts";
 import { writeScanner } from "https://raw.githubusercontent.com/littlelanguages/scanpiler-tool-deno/0.2.1/mod.ts";
-import { _format } from "./testing/asserts.ts";
 
 export type CommandOptions = {
   scannerOutputFileName: string | undefined;
