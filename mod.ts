@@ -8,8 +8,8 @@ import {
   asDoc,
   first,
   translate,
-} from "https://raw.githubusercontent.com/littlelanguages/parspiler/0.0.2/mod.ts";
-import { writeScanner } from "https://raw.githubusercontent.com/littlelanguages/scanpiler-tool-deno/0.2.1/mod.ts";
+} from "https://raw.githubusercontent.com/littlelanguages/parspiler/0.0.3/mod.ts";
+import { writeScanner } from "https://raw.githubusercontent.com/littlelanguages/scanpiler-tool-deno/0.2.2/mod.ts";
 
 export type CommandOptions = {
   scannerOutputFileName: string | undefined;
