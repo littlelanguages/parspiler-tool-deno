@@ -2,11 +2,11 @@ import * as Path from "https://deno.land/std@0.63.0/path/mod.ts";
 import * as PP from "https://raw.githubusercontent.com/littlelanguages/deno-lib-text-prettyprint/0.3.1/mod.ts";
 
 import {
+  asDoc,
   Definition,
   Expr,
-  Production,
-  asDoc,
   first,
+  Production,
   translate,
 } from "https://raw.githubusercontent.com/littlelanguages/parspiler/0.0.3/mod.ts";
 import { writeScanner } from "https://raw.githubusercontent.com/littlelanguages/scanpiler-tool-deno/0.2.2/mod.ts";

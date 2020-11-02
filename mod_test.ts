@@ -1,5 +1,5 @@
 import * as Assert from "./testing/asserts.ts";
-import { OutputMode, exec } from "https://deno.land/x/exec@0.0.5/mod.ts";
+import { exec, OutputMode } from "https://deno.land/x/exec@0.0.5/mod.ts";
 
 import { denoCommand } from "./mod.ts";
 
