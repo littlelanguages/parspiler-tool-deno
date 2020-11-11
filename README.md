@@ -1,6 +1,6 @@
-# parspiler
+# parspiler-tool-deno
 
-A parser of a parser generator
+A tool to produce a Deno parser from a language's lexical and grammar definition.
 
 ## Input Syntax
 
