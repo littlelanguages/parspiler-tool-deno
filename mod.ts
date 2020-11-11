@@ -1,15 +1,17 @@
-import * as Path from "https://deno.land/std@0.63.0/path/mod.ts";
-import * as PP from "https://raw.githubusercontent.com/littlelanguages/deno-lib-text-prettyprint/0.3.1/mod.ts";
+import * as Path from "https://deno.land/std@0.76.0/path/mod.ts";
+import * as PP from "https://raw.githubusercontent.com/littlelanguages/deno-lib-text-prettyprint/0.3.2/mod.ts";
 
 import {
   asDoc,
+  first,
+  translate,
+} from "https://raw.githubusercontent.com/littlelanguages/parspiler/0.0.5/mod.ts";
+import type {
   Definition,
   Expr,
-  first,
   Production,
-  translate,
-} from "https://raw.githubusercontent.com/littlelanguages/parspiler/0.0.3/mod.ts";
-import { writeScanner } from "https://raw.githubusercontent.com/littlelanguages/scanpiler-tool-deno/0.2.2/mod.ts";
+} from "https://raw.githubusercontent.com/littlelanguages/parspiler/0.0.5/mod.ts";
+import { writeScanner } from "https://raw.githubusercontent.com/littlelanguages/scanpiler-tool-deno/0.2.3/mod.ts";
 
 export type CommandOptions = {
   scannerOutputFileName: string | undefined;
@@ -72,7 +74,7 @@ const writeParser = async (
   definition: Definition,
 ): Promise<void> => {
   const parserDoc = PP.vcat([
-    'import { Either, left, right } from "https://raw.githubusercontent.com/littlelanguages/deno-lib-data-either/0.1.0/mod.ts";',
+    'import { Either, left, right } from "https://raw.githubusercontent.com/littlelanguages/deno-lib-data-either/0.1.2/mod.ts";',
     PP.hcat(
       [
         'import { mkScanner, Scanner, Token, TToken } from "',
