@@ -255,8 +255,20 @@ const writeMkParser = (definition: Definition): PP.Doc => {
           ]),
           assign(variable),
         ]);
-      case "Alternative":
+      case "Alternative": {
+        const tmpVariable = `${variable}t`;
+
         return PP.vcat([
+          PP.hcat([
+            "let ",
+            variable,
+            ": ",
+            PP.join(
+              e.exprs.map((expr) => writeExprType(definition, expr)),
+              "| ",
+            ),
+            ";",
+          ]),
           PP.vcat(e.exprs.map((es, i) =>
             PP.vcat([
               PP.hcat([
@@ -267,11 +279,14 @@ const writeMkParser = (definition: Definition): PP.Doc => {
               ]),
               PP.nest(
                 2,
-                writeExpr(
-                  variable,
-                  () => assign(variable),
-                  es,
-                ),
+                PP.vcat([
+                  writeExpr(
+                    tmpVariable,
+                    () => PP.empty,
+                    es,
+                  ),
+                  PP.hcat([variable, " = ", tmpVariable, ";"]),
+                ]),
               ),
             ])
           )),
@@ -286,7 +301,9 @@ const writeMkParser = (definition: Definition): PP.Doc => {
             ]),
           ),
           "}",
+          assign(variable),
         ]);
+      }
 
       case "Many": {
         const tmpVariable = `${variable}t`;

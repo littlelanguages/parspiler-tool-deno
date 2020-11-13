@@ -15,3 +15,5 @@ OptionalManyIds: [Id Ids];
 ManyAlternativeValues : {Id Ids | LiteralInt};
 
 ManyAlternativeOptionalValues : {Id Ids | [LiteralInt]};
+
+OptionalPrefixAlternative: "const" ("val" Id | "var" Id);

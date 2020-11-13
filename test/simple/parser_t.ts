@@ -11,7 +11,8 @@ const visitor: Visitor<
   string | number,
   string | undefined,
   Array<string | number>,
-  Array<string | number>
+  Array<string | number>,
+  string
 > = {
   visitId: (a: Token): string => a[2],
   visitIds: (a: Array<Token>): string => a.map((id) => id[2]).join(", "),
@@ -35,6 +36,10 @@ const visitor: Visitor<
         ? `${v[0]}-${v[1]}`
         : parseInt(v[2])
     ),
+  visitOptionalPrefixAlternative: (
+    a1: Token,
+    a2: ([Token, string] | [Token, string]),
+  ): string => a2[1],
 };
 
 Deno.test("test - simple - id", () => {
