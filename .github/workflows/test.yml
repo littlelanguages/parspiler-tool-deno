@@ -21,7 +21,5 @@ jobs:
         uses: denolib/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno-version }}
-      - name: Lint parspiler
-        run: deno fmt --check
       - name: Test parspiler
         run: .bin/test.sh
